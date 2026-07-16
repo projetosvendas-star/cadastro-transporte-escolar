@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Relatórios - Transporte Escolar</title>
+<style>
+
+body{
+margin:0;
+font-family:Arial;
+background:#eef3ff;
+display:flex;
+justify-content:center;
+min-height:100vh;
+}
+
+.container{
+max-width:1100px;
+width:100%;
+background:white;
+margin:20px;
+padding:25px;
+border-radius:10px;
+box-shadow:0 5px 20px rgba(0,0,0,0.2);
+}
+
+h2{
+text-align:center;
+margin-bottom:5px;
+font-size:20px;
+}
+
+.filtro{
+display:flex;
+gap:10px;
+flex-wrap:wrap;
+margin-bottom:15px;
+align-items:flex-end;
+}
+
+.filtro div{
+flex:1;
+min-width:150px;
+}
+
+.filtro label{
+font-weight:bold;
+font-size:12px;
+display:block;
+}
+
+.filtro select, .filtro input{
+width:100%;
+padding:8px;
+border-radius:6px;
+border:1px solid #ccc;
+font-size:13px;
+box-sizing:border-box;
+}
+
+.btn-filtrar{
+background:#2980b9;
+color:white;
+border:none;
+padding:10px 20px;
+border-radius:6px;
+cursor:pointer;
+font-size:14px;
+min-width:auto;
+width:100%;
+}
+
+.btn-exportar{
+background:#27ae60;
+color:white;
+border:none;
+padding:10px 20px;
+border-radius:6px;
+cursor:pointer;
+font-size:14px;
+min-width:auto;
+}
+
+.btn-voltar{
+background:#888;
+color:white;
+border:none;
+padding:10px 20px;
+border-radius:6px;
+cursor:pointer;
+font-size:14px;
+text-decoration:none;
+display:inline-block;
+}
+
+.toolbar{
+display:flex;
+gap:10px;
+justify-content:space-between;
+flex-wrap:wrap;
+margin-bottom:15px;
+align-items:center;
+}
+
+.total{
+font-weight:bold;
+font-size:14px;
+color:#333;
+}
+
+.tabela-wrap{
+overflow-x:auto;
+-webkit-overflow-scrolling:touch;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+font-size:13px;
+min-width:850px;
+}
+
+th{
+background:#2c3e50;
+color:white;
+padding:10px 8px;
+text-align:left;
+white-space:nowrap;
+}
+
+td{
+padding:8px;
+border-bottom:1px solid #ddd;
+}
+
+tr:nth-child(even){
+background:#f9f9f9;
+}
+
+tr:hover{
+background:#eef6ff;
+}
+
+.loading{
+text-align:center;
+padding:40px;
+font-size:16px;
+color:#666;
+}
+
+.btn-editar{
+background:#f39c12;
+color:white;
+border:none;
+padding:5px 10px;
+border-radius:4px;
+cursor:pointer;
+font-size:12px;
+}
+
+.btn-excluir{
+background:#e74c3c;
+color:white;
+border:none;
+padding:5px 10px;
+border-radius:4px;
+cursor:pointer;
+font-size:12px;
+}
+
+.btn-salvar{
+background:#27ae60;
+color:white;
+border:none;
+padding:5px 10px;
+border-radius:4px;
+cursor:pointer;
+font-size:12px;
+}
+
+.btn-cancelar{
+background:#888;
+color:white;
+border:none;
+padding:5px 10px;
+border-radius:4px;
+cursor:pointer;
+font-size:12px;
+}
+
+.modal-overlay{
+position:fixed;top:0;left:0;width:100%;height:100%;
+background:rgba(0,0,0,0.6);display:flex;align-items:center;
+justify-content:center;z-index:1000;
+}
+
+.modal{
+background:white;padding:25px;border-radius:10px;
+width:90%;max-width:500px;
+}
+
+.modal label{font-weight:bold;font-size:13px;display:block;margin-top:8px;}
+.modal input,.modal select{width:100%;padding:8px;border-radius:6px;border:1px solid #ccc;font-size:13px;box-sizing:border-box;margin-top:4px;}
+
+.rodape{
+text-align:center;
+font-size:10px;
+font-weight:bold;
+margin-top:20px;
+padding-top:10px;
+border-top:1px solid #ccc;
+color:#555;
+}
+
+@media print{
+.toolbar, .filtro, .btn-voltar{display:none !important;}
+.container{box-shadow:none;margin:0;padding:15px;}
+}
+
+@media (max-width:768px){
+body{align-items:flex-start;}
+.container{margin:10px;padding:15px;}
+h2{font-size:17px;}
+.filtro{flex-direction:column;}
+.filtro div{min-width:100%;}
+.toolbar{flex-direction:column;align-items:stretch;}
+.btn-exportar, .btn-voltar{width:100%;text-align:center;}
+table{font-size:11px;}
+th,td{padding:6px 4px;}
+}
+
+@media (max-width:480px){
+.container{padding:12px;margin:8px;}
+h2{font-size:15px;}
+.filtro label{font-size:11px;}
+.filtro select{font-size:12px;padding:7px;}
+.btn-filtrar, .btn-exportar, .btn-voltar{font-size:13px;padding:8px 15px;}
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="loginOverlay" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:999;">
+<div style="background:white;padding:30px;border-radius:10px;width:90%;max-width:350px;text-align:center;">
+<h2 style="margin-top:0;">Acesso Restrito</h2>
+<p style="font-size:13px;color:#666;">Digite a senha do administrador</p>
+<input id="senhaInput" type="password" placeholder="Senha" style="width:100%;padding:10px;border-radius:6px;border:1px solid #ccc;font-size:14px;box-sizing:border-box;margin-bottom:10px;">
+<button id="btnLogin" style="width:100%;padding:10px;border:none;border-radius:6px;font-size:14px;cursor:pointer;background:#2c3e50;color:white;">Entrar</button>
+<p id="senhaErro" style="color:red;font-size:13px;margin-top:10px;display:none;">Senha incorreta</p>
+</div>
+</div>
+
+<div class="container" id="conteudo" style="display:none;">
+
+<h2>Relatório de Cadastros</h2>
+
+<div class="filtro">
+<div>
+<label>Escola</label>
+<select id="fEscola">
+<option value="">Todas</option>
+<option>E.E ARTUR ANTUNES MACIEL</option>
+<option>CEM Dr. GUILHERME</option>
+<option>CEM PROFESSOR ORLANDO PEREIRA</option>
+<option>EMR OSVALDO CRUZ</option>
+<option>EMR EUCLIDES DA CUNHA</option>
+<option>EMR VINICIOS DE MORAIS</option>
+<option>EE. ANTONIO FRANCISCO LISBOA</option>
+<option>ANEXA RIO PRETO</option>
+<option>ALVARES DE AZEVEDO</option>
+<option>CORA CORALINA</option>
+<option>IFMT</option>
+</select>
+</div>
+<div>
+<label>Rota</label>
+<select id="fRota">
+<option value="">Todas</option>
+<option>ROTA BOI BOM/RIO AZUL/PARANÃ - OSVALDO CRUZ - Nelson</option>
+<option>ROTA IRACEMA 03 - OSVALDO CRUZ - Ivanildo</option>
+<option>ROTA GLEBA RIO DO OURO/ GLEBA UNIÃO - OSVALDO CRUZ - Bruno</option>
+<option>ROTA LINHA 01/21/TERRA ROXA - Vanderson</option>
+<option>ROTA FONTANILLAS/URBANO - Rafael</option>
+<option>ROTA CAIABI/05 MENINO JESUS/LISBOA - Rony</option>
+<option>ROTA PESQUISA/URBANO - Adão</option>
+<option>ROTA LINHA 01/04/LISBOA - Ailton</option>
+<option>ROTA LINHA F/04/LISBOA - Florisvaldo</option>
+<option>ROTA LINHA 04/G/EUCLIDES - José Ribeiro</option>
+<option>ROTA LINHA 04/EUCLIDES - Geziel</option>
+<option>ROTA SETOR AEROPORTO/URBANO - Gilmar</option>
+<option>ROTA VALE DO JUINÃƒO/URBANO - Davi</option>
+<option>ROTA LINHA 09/07/LISBOA - França</option>
+<option>ROTA LINHA 08/07/LISBOA - Sebastião</option>
+<option>ROTA GLEBA RIO DO OURO/ GLEBA UNIÃO - OSVALDO CRUZ - Enoc</option>
+<option>ROTA URBANO/PADRE DUÃLIO/PALMITEIRA - Diones</option>
+<option>ROTA BR 170/VAN/URBANO - Alessandro</option>
+<option>ROTA SÃƒO JUSTINO/ IFMT/URBANO - Paulo</option>
+<option>ROTA BR 174/03/TERRA ROXA - Elival</option>
+<option>ROTA RIO PRETO FAZENDA AMALIA/URBANO - Rogerio</option>
+<option>ROTA LINHA J/RIO PRETO/URBANO - Welligton Jumes</option>
+<option>ROTA SHEKINAN / LINHA 01/URBANO - Jussimar Cassol</option>
+<option>ROTA BR ARIPUANÃ / PARANÃ 02 - OSVALDO CRUZ - Ildinei</option>
+<option>ROTA GLEBRA IRACEMA 01 ROTA B - OSVALDO CRUZ - Josimar</option>
+<option>ROTA IRACEMA 02 - OSVALDO CRUZ - Cleiton</option>
+</select>
+</div>
+<div>
+<label>Ano Escolar</label>
+<select id="fAno">
+<option value="">Todos</option>
+<option>PRÉ I</option>
+<option>PRÉ II</option>
+<option>1º ANO</option>
+<option>2º ANO</option>
+<option>3º ANO</option>
+<option>4º ANO</option>
+<option>5º ANO</option>
+<option>6º ANO</option>
+<option>7º ANO</option>
+<option>8º ANO</option>
+<option>9º ANO</option>
+<option>1º ANO ENSINO MÉDIO</option>
+<option>2º ANO ENSINO MÉDIO</option>
+<option>3º ANO ENSINO MÉDIO</option>
+</select>
+</div>
+<div>
+<label>Data Início</label>
+<input type="date" id="fDataInicio">
+</div>
+<div>
+<label>Data Fim</label>
+<input type="date" id="fDataFim">
+</div>
+<div>
+<label>&nbsp;</label>
+<button class="btn-filtrar" onclick="carregar()">Filtrar</button>
+</div>
+</div>
+
+<div class="toolbar">
+<div class="total" id="total">Carregando...</div>
+<div>
+<button class="btn-exportar" onclick="exportarPDF()">PDF</button>
+<button class="btn-exportar" onclick="exportarExcel()">Excel</button>
+<a class="btn-voltar" href="index.html">Voltar</a>
+</div>
+</div>
+
+<div id="resumo" style="margin-bottom:15px;"></div>
+
+<div id="tabela" class="tabela-wrap">
+<p class="loading">Carregando dados...</p>
+</div>
+
+<div class="rodape">
+Desenvolvido pelo Departamento de Tecnologia da SME
+</div>
+
+</div>
+
+<script>
+
+var SUPABASE_URL = "https://ndkmuevkdghmssrbewzo.supabase.co";
+var SUPABASE_KEY = "sb_publishable_Oa-hSs2SxH-fWPP089A5-w_QWUeLXAY";
+var dados = [];
+
+async function carregar(){
+  var escola = document.getElementById("fEscola").value;
+  var rota = document.getElementById("fRota").value;
+  var ano = document.getElementById("fAno").value;
+  var dataInicio = document.getElementById("fDataInicio").value;
+  var dataFim = document.getElementById("fDataFim").value;
+
+  var url = SUPABASE_URL + "/rest/v1/cadastro_transporte?select=*&order=id.desc";
+  var params = [];
+  if(escola) params.push("escola=eq." + encodeURIComponent(escola));
+  if(rota) params.push("rota=eq." + encodeURIComponent(rota));
+  if(ano) params.push("ano=eq." + encodeURIComponent(ano));
+  if(dataInicio) params.push("created_at=gte." + dataInicio + "T00:00:00");
+  if(dataFim) params.push("created_at=lte." + dataFim + "T23:59:59");
+  if(params.length) url += "&" + params.join("&");
+
+  try{
+    var response = await fetch(url, {
+      headers: {
+        "apikey": SUPABASE_KEY,
+        "Authorization": "Bearer " + SUPABASE_KEY
+      }
+    });
+    dados = await response.json();
+    renderizar();
+  }catch(e){
+    document.getElementById("tabela").innerHTML = "<p class='loading'>Erro ao carregar dados.</p>";
+  }
+}
+
+function renderizar(){
+  var resumoDiv = document.getElementById("resumo");
+
+  if(!dados.length){
+    document.getElementById("tabela").innerHTML = "<p class='loading'>Nenhum registro encontrado.</p>";
+    document.getElementById("total").textContent = "Total: 0 registros";
+    resumoDiv.innerHTML = "";
+    return;
+  }
+
+  document.getElementById("total").textContent = "Total: " + dados.length + " registro(s)";
+
+  var escolas = {};
+  var rotas = {};
+  var anos = {};
+  for(var i = 0; i < dados.length; i++){
+    var d = dados[i];
+    var e = d.escola || "Não informado";
+    var r = d.rota || "Não informado";
+    var a = d.ano || "Não informado";
+    escolas[e] = (escolas[e]||0) + 1;
+    rotas[r] = (rotas[r]||0) + 1;
+    anos[a] = (anos[a]||0) + 1;
+  }
+
+  function montarResumo(titulo, obj){
+    var h = "<div style='background:#f9f9f9;border:1px solid #ddd;border-radius:6px;padding:12px;margin-bottom:10px;'>";
+    h += "<div style='font-weight:bold;font-size:14px;margin-bottom:8px;color:#2c3e50;'>" + titulo + "</div>";
+    var chaves = Object.keys(obj).sort();
+    for(var k=0;k<chaves.length;k++){
+      h += "<div style='display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #eee;font-size:13px;'>";
+      h += "<span>" + chaves[k] + "</span>";
+      h += "<span style='font-weight:bold;color:#2980b9;'>" + obj[chaves[k]] + "</span>";
+      h += "</div>";
+    }
+    h += "</div>";
+    return h;
+  }
+
+  resumoDiv.innerHTML =
+    "<div style='display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px;'>" +
+    montarResumo("Por Escola", escolas) +
+    montarResumo("Por Rota", rotas) +
+    montarResumo("Por Ano Escolar", anos) +
+    "</div>";
+
+  var html = "<table><thead><tr>";
+  html += "<th>#</th><th>Data</th><th>Responsável</th><th>Endereço</th><th>Aluno</th><th>Nascimento</th><th>Escola</th><th>Ano</th><th>Rota</th><th>Latitude</th><th>Longitude</th><th>Ações</th>";
+  html += "</tr></thead><tbody>";
+
+  for(var i = 0; i < dados.length; i++){
+    var d = dados[i];
+    var dataFormatada = "";
+    if(d.created_at){
+      var dt = new Date(d.created_at);
+      dataFormatada = dt.toLocaleDateString("pt-BR") + " " + dt.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
+    }
+    html += "<tr>";
+    html += "<td>" + (i+1) + "</td>";
+    html += "<td>" + dataFormatada + "</td>";
+    html += "<td>" + (d.responsavel||"") + "</td>";
+    html += "<td>" + (d.endereco||"") + "</td>";
+    html += "<td>" + (d.aluno||"") + "</td>";
+    html += "<td>" + (d.nascimento||"") + "</td>";
+    html += "<td>" + (d.escola||"") + "</td>";
+    html += "<td>" + (d.ano||"") + "</td>";
+    html += "<td>" + (d.rota||"") + "</td>";
+    html += "<td>" + (d.latitude||"") + "</td>";
+    html += "<td>" + (d.longitude||"") + "</td>";
+    html += "<td style='white-space:nowrap'><button class='btn-editar' onclick='editar(" + i + ")'>Editar</button> <button class='btn-excluir' onclick='excluir(" + i + ")'>Excluir</button></td>";
+    html += "</tr>";
+  }
+
+  html += "</tbody></table>";
+  document.getElementById("tabela").innerHTML = "<div class='tabela-wrap'>" + html + "</div>";
+}
+
+function editar(idx){
+  var d = dados[idx];
+  var escolas = ["E.E ARTUR ANTUNES MACIEL","CEM Dr. GUILHERME","CEM PROFESSOR ORLANDO PEREIRA","EMR OSVALDO CRUZ","EMR EUCLIDES DA CUNHA","EMR VINICIOS DE MORAIS","EE. ANTONIO FRANCISCO LISBOA","ANEXA RIO PRETO","ALVARES DE AZEVEDO","CORA CORALINA","IFMT"];
+  var anos = ["PRÉ I","PRÉ II","1º ANO","2º ANO","3º ANO","4º ANO","5º ANO","6º ANO","7º ANO","8º ANO","9º ANO","1º ANO ENSINO MÉDIO","2º ANO ENSINO MÉDIO","3º ANO ENSINO MÉDIO"];
+  var rotas = ["ROTA BOI BOM/RIO AZUL/PARANÃ - OSVALDO CRUZ - Nelson","ROTA IRACEMA 03 - OSVALDO CRUZ - Ivanildo","ROTA GLEBA RIO DO OURO/ GLEBA UNIÃO - OSVALDO CRUZ - Bruno","ROTA LINHA 01/21/TERRA ROXA - Vanderson","ROTA FONTANILLAS/URBANO - Rafael","ROTA CAIABI/05 MENINO JESUS/LISBOA - Rony","ROTA PESQUISA/URBANO - Adão","ROTA LINHA 01/04/LISBOA - Ailton","ROTA LINHA F/04/LISBOA - Florisvaldo","ROTA LINHA 04/G/EUCLIDES - José Ribeiro","ROTA LINHA 04/EUCLIDES - Geziel","ROTA SETOR AEROPORTO/URBANO - Gilmar","ROTA VALE DO JUINÃƒO/URBANO - Davi","ROTA LINHA 09/07/LISBOA - França","ROTA LINHA 08/07/LISBOA - Sebastião","ROTA GLEBA RIO DO OURO/ GLEBA UNIÃO - OSVALDO CRUZ - Enoc","ROTA URBANO/PADRE DUÃLIO/PALMITEIRA - Diones","ROTA BR 170/VAN/URBANO - Alessandro","ROTA SÃƒO JUSTINO/ IFMT/URBANO - Paulo","ROTA BR 174/03/TERRA ROXA - Elival","ROTA RIO PRETO FAZENDA AMALIA/URBANO - Rogerio","ROTA LINHA J/RIO PRETO/URBANO - Welligton Jumes","ROTA SHEKINAN / LINHA 01/URBANO - Jussimar Cassol","ROTA BR ARIPUANÃ / PARANÃ 02 - OSVALDO CRUZ - Ildinei","ROTA GLEBRA IRACEMA 01 ROTA B - OSVALDO CRUZ - Josimar","ROTA IRACEMA 02 - OSVALDO CRUZ - Cleiton"];
+
+  var optEscola = "";
+  for(var e=0;e<escolas.length;e++) optEscola += "<option" + (d.escola===escolas[e]?" selected":"") + ">" + escolas[e] + "</option>";
+  var optAno = "";
+  for(var a=0;a<anos.length;a++) optAno += "<option" + (d.ano===anos[a]?" selected":"") + ">" + anos[a] + "</option>";
+  var optRota = "";
+  for(var r=0;r<rotas.length;r++) optRota += "<option" + (d.rota===rotas[r]?" selected":"") + ">" + rotas[r] + "</option>";
+
+  var modal = document.createElement("div");
+  modal.className = "modal-overlay";
+  modal.id = "modalEditar";
+  modal.innerHTML = "<div class='modal'>" +
+    "<h2 style='margin-top:0;font-size:18px;'>Editar Registro</h2>" +
+    "<label>Nome do Responsável</label><input id='eResponsavel' value='" + (d.responsavel||"").replace(/'/g,"&#39;") + "'>" +
+    "<label>Fazenda / Sítio / Chácara</label><input id='eEndereco' value='" + (d.endereco||"").replace(/'/g,"&#39;") + "'>" +
+    "<label>Nome do Aluno</label><input id='eAluno' value='" + (d.aluno||"").replace(/'/g,"&#39;") + "'>" +
+    "<label>Data de Nascimento</label><input type='date' id='eNascimento' value='" + (d.nascimento||"") + "'>" +
+    "<label>Escola</label><select id='eEscola'>" + optEscola + "</select>" +
+    "<label>Ano Escolar</label><select id='eAno'>" + optAno + "</select>" +
+    "<label>Rota</label><select id='eRota'>" + optRota + "</select>" +
+    "<label>Latitude</label><input id='eLat' value='" + (d.latitude||"") + "'>" +
+    "<label>Longitude</label><input id='eLon' value='" + (d.longitude||"") + "'>" +
+    "<div style='margin-top:15px;display:flex;gap:10px;'>" +
+    "<button class='btn-salvar' onclick='salvarEdicao(" + d.id + ")'>Salvar</button>" +
+    "<button class='btn-cancelar' onclick='fecharModal()'>Cancelar</button>" +
+    "</div></div>";
+  document.body.appendChild(modal);
+}
+
+function fecharModal(){
+  var m = document.getElementById("modalEditar");
+  if(m) m.remove();
+}
+
+async function salvarEdicao(id){
+  var dadosUpdate = {
+    responsavel: document.getElementById("eResponsavel").value,
+    endereco: document.getElementById("eEndereco").value,
+    aluno: document.getElementById("eAluno").value,
+    nascimento: document.getElementById("eNascimento").value,
+    escola: document.getElementById("eEscola").value,
+    ano: document.getElementById("eAno").value,
+    rota: document.getElementById("eRota").value,
+    latitude: parseFloat(document.getElementById("eLat").value) || null,
+    longitude: parseFloat(document.getElementById("eLon").value) || null
+  };
+
+  try{
+    var response = await fetch(SUPABASE_URL + "/rest/v1/cadastro_transporte?id=eq." + id, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": SUPABASE_KEY,
+        "Authorization": "Bearer " + SUPABASE_KEY
+      },
+      body: JSON.stringify(dadosUpdate)
+    });
+
+    if(!response.ok){
+      var err = await response.text();
+      alert("Erro ao salvar: " + err);
+    } else {
+      fecharModal();
+      carregar();
+    }
+  }catch(e){
+    alert("Erro de conexão: " + e.message);
+  }
+}
+
+async function excluir(idx){
+  var d = dados[idx];
+  if(!confirm("Deseja excluir o registro de \"" + d.responsavel + "\" referente ao aluno \"" + d.aluno + "\"?")) return;
+
+  try{
+    var response = await fetch(SUPABASE_URL + "/rest/v1/cadastro_transporte?id=eq." + d.id, {
+      method: "DELETE",
+      headers: {
+        "apikey": SUPABASE_KEY,
+        "Authorization": "Bearer " + SUPABASE_KEY
+      }
+    });
+
+    if(!response.ok){
+      var err = await response.text();
+      alert("Erro ao excluir: " + err);
+    } else {
+      carregar();
+    }
+  }catch(e){
+    alert("Erro de conexão: " + e.message);
+  }
+}
+
+function exportarPDF(){
+  if(!dados.length){ alert("Nenhum dado para exportar."); return; }
+  window.print();
+}
+
+function exportarExcel(){
+  if(!dados.length){ alert("Nenhum dado para exportar."); return; }
+
+  var csv = "\uFEFF";
+  csv += "Data;Responsável;Endereço;Aluno;Nascimento;Escola;Ano;Rota;Latitude;Longitude\n";
+
+  for(var i = 0; i < dados.length; i++){
+    var d = dados[i];
+    var dataFmt = "";
+    if(d.created_at){
+      var dt = new Date(d.created_at);
+      dataFmt = dt.toLocaleDateString("pt-BR") + " " + dt.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
+    }
+    csv += dataFmt + ";";
+    csv += (d.responsavel||"").replace(/;/g," ") + ";";
+    csv += (d.endereco||"").replace(/;/g," ") + ";";
+    csv += (d.aluno||"").replace(/;/g," ") + ";";
+    csv += (d.nascimento||"").replace(/;/g," ") + ";";
+    csv += (d.escola||"").replace(/;/g," ") + ";";
+    csv += (d.ano||"").replace(/;/g," ") + ";";
+    csv += (d.rota||"").replace(/;/g," ") + ";";
+    csv += (d.latitude||"") + ";";
+    csv += (d.longitude||"") + "\n";
+  }
+
+  var blob = new Blob([csv], {type:"text/csv;charset=utf-8;"});
+  var link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "relatorio_transporte_escolar.csv";
+  link.click();
+}
+
+document.getElementById("senhaInput").addEventListener("keypress", function(e) {
+  if(e.key === "Enter") document.getElementById("btnLogin").click();
+});
+
+document.getElementById("btnLogin").addEventListener("click", function() {
+  var senha = document.getElementById("senhaInput").value;
+  if(senha === "Mud@r2651") {
+    document.getElementById("loginOverlay").style.display = "none";
+    document.getElementById("conteudo").style.display = "block";
+    carregar();
+  } else {
+    document.getElementById("senhaErro").style.display = "block";
+    document.getElementById("senhaInput").value = "";
+    document.getElementById("senhaInput").focus();
+  }
+});
+
+</script>
+
+</body>
+</html>

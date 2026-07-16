@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Cadastro Transporte Escolar</title>
+
+<style>
+
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+margin:0;
+font-family:Arial;
+background:#eef3ff;
+display:flex;
+justify-content:center;
+min-height:100vh;
+}
+
+.container{
+max-width:700px;
+width:100%;
+background:white;
+margin:20px;
+padding:25px;
+border-radius:10px;
+box-shadow:0 5px 20px rgba(0,0,0,0.2);
+}
+
+.logo{
+width:200px;
+max-width:100%;
+display:block;
+margin:auto;
+margin-bottom:10px;
+}
+
+h2{
+text-align:center;
+font-size:20px;
+}
+
+label{
+font-weight:bold;
+margin-top:10px;
+display:block;
+font-size:14px;
+}
+
+input,select{
+width:100%;
+padding:10px;
+margin-top:5px;
+border-radius:6px;
+border:1px solid #ccc;
+font-size:14px;
+box-sizing:border-box;
+}
+
+button{
+width:100%;
+padding:12px;
+border:none;
+border-radius:6px;
+font-size:16px;
+margin-top:10px;
+cursor:pointer;
+}
+
+.btn-gps{
+background:#f39c12;
+color:white;
+}
+
+.btn-enviar{
+background:#27ae60;
+color:white;
+}
+
+.box{
+background:#eef6ff;
+padding:10px;
+border-radius:6px;
+margin-top:10px;
+font-size:14px;
+word-break:break-all;
+}
+
+.mapa{
+width:100%;
+height:250px;
+border:2px solid #27ae60;
+border-radius:6px;
+margin-top:10px;
+display:none;
+}
+
+.msg{
+margin-top:15px;
+font-weight:bold;
+color:green;
+text-align:center;
+font-size:14px;
+}
+
+.rodape{
+text-align:center;
+font-size:10px;
+font-weight:bold;
+margin-top:20px;
+padding-top:10px;
+border-top:1px solid #ccc;
+color:#555;
+}
+
+.link-admin{
+text-align:center;
+margin-top:10px;
+}
+
+.link-admin a{
+font-size:12px;
+color:#2980b9;
+text-decoration:none;
+font-weight:bold;
+}
+
+@media (max-width:480px){
+body{align-items:flex-start;}
+.container{margin:10px;padding:15px;border-radius:8px;}
+.logo{width:150px;}
+h2{font-size:17px;}
+label{font-size:13px;}
+input,select{font-size:13px;padding:8px;}
+button{font-size:14px;padding:10px;}
+.box{font-size:12px;}
+.mapa{height:200px;}
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<img src="logo.png" class="logo">
+
+<h2>Cadastro Transporte Escolar</h2>
+
+<label>Nome do Responsável</label>
+<input id="responsavel">
+
+<label>Fazenda / Sítio / Chácara</label>
+<input id="endereco">
+
+<label>Nome do Aluno</label>
+<input id="aluno">
+
+<label>Data de Nascimento</label>
+<input type="date" id="nascimento">
+
+<label>Escola</label>
+
+<select id="escola">
+
+<option>E.E ARTUR ANTUNES MACIEL</option>
+<option>CEM Dr. GUILHERME</option>
+<option>CEM PROFESSOR ORLANDO PEREIRA</option>
+<option>EMR OSVALDO CRUZ</option>
+<option>EMR EUCLIDES DA CUNHA</option>
+<option>EMR VINICIOS DE MORAIS</option>
+<option>EE. ANTONIO FRANCISCO LISBOA</option>
+<option>ANEXA RIO PRETO</option>
+<option>ALVARES DE AZEVEDO</option>
+<option>CORA CORALINA</option>
+<option>IFMT</option>
+
+</select>
+
+<label>Ano Escolar</label>
+
+<select id="ano">
+
+<option>PRÉ I</option>
+<option>PRÉ II</option>
+<option>1º ANO</option>
+<option>2º ANO</option>
+<option>3º ANO</option>
+<option>4º ANO</option>
+<option>5º ANO</option>
+<option>6º ANO</option>
+<option>7º ANO</option>
+<option>8º ANO</option>
+<option>9º ANO</option>
+<option>1º ANO ENSINO MÉDIO</option>
+<option>2º ANO ENSINO MÉDIO</option>
+<option>3º ANO ENSINO MÉDIO</option>
+
+</select>
+
+<label>Rota</label>
+
+<select id="rota">
+
+<option>ROTA BOI BOM/RIO AZUL/PARANÃ - OSVALDO CRUZ - Nelson</option>
+<option>ROTA IRACEMA 03 - OSVALDO CRUZ - Ivanildo</option>
+<option>ROTA GLEBA RIO DO OURO/ GLEBA UNIÃO - OSVALDO CRUZ - Bruno</option>
+<option>ROTA LINHA 01/21/TERRA ROXA - Vanderson</option>
+<option>ROTA FONTANILLAS/URBANO - Rafael</option>
+<option>ROTA CAIABI/05 MENINO JESUS/LISBOA - Rony</option>
+<option>ROTA PESQUISA/URBANO - Adão</option>
+<option>ROTA LINHA 01/04/LISBOA - Ailton</option>
+<option>ROTA LINHA F/04/LISBOA - Florisvaldo</option>
+<option>ROTA LINHA 04/G/EUCLIDES - José Ribeiro</option>
+<option>ROTA LINHA 04/EUCLIDES - Geziel</option>
+<option>ROTA SETOR AEROPORTO/URBANO - Gilmar</option>
+<option>ROTA VALE DO JUINÃƒO/URBANO - Davi</option>
+<option>ROTA LINHA 09/07/LISBOA - França</option>
+<option>ROTA LINHA 08/07/LISBOA - Sebastião</option>
+<option>ROTA GLEBA RIO DO OURO/ GLEBA UNIÃO - OSVALDO CRUZ - Enoc</option>
+<option>ROTA URBANO/PADRE DUÃLIO/PALMITEIRA - Diones</option>
+<option>ROTA BR 170/VAN/URBANO - Alessandro</option>
+<option>ROTA SÃƒO JUSTINO/ IFMT/URBANO - Paulo</option>
+<option>ROTA BR 174/03/TERRA ROXA - Elival</option>
+<option>ROTA RIO PRETO FAZENDA AMALIA/URBANO - Rogerio</option>
+<option>ROTA LINHA J/RIO PRETO/URBANO - Welligton Jumes</option>
+<option>ROTA SHEKINAN / LINHA 01/URBANO - Jussimar Cassol</option>
+<option>ROTA BR ARIPUANÃ / PARANÃ 02 - OSVALDO CRUZ - Ildinei</option>
+<option>ROTA GLEBRA IRACEMA 01 ROTA B - OSVALDO CRUZ - Josimar</option>
+<option>ROTA IRACEMA 02 - OSVALDO CRUZ - Cleiton</option>
+
+</select>
+
+<button class="btn-gps" id="btnGps">📍 Capturar Localização</button>
+
+<div class="box" id="local">
+Latitude: - <br>
+Longitude: -
+</div>
+
+<iframe class="mapa" id="mapa" allowfullscreen></iframe>
+
+<button class="btn-enviar" id="btnEnviar">Enviar Registro</button>
+
+<div class="msg" id="msg"></div>
+
+<div class="link-admin">
+<a href="relatorios.html">Painel do Administrador</a>
+</div>
+
+<div class="rodape">
+Desenvolvido pelo Departamento de Tecnologia da SME
+</div>
+
+</div>
+
+<script>
+
+var SUPABASE_URL = "https://ndkmuevkdghmssrbewzo.supabase.co";
+var SUPABASE_KEY = "sb_publishable_Oa-hSs2SxH-fWPP089A5-w_QWUeLXAY";
+
+var latitude = null;
+var longitude = null;
+
+document.getElementById("btnGps").addEventListener("click", function() {
+
+  var campo = document.getElementById("local");
+
+  if (!navigator.geolocation) {
+    campo.innerHTML = "Geolocalização não suportada neste navegador";
+    return;
+  }
+
+  campo.innerHTML = "Aguardando permissão de localização...";
+
+  navigator.geolocation.getCurrentPosition(
+
+    function(pos) {
+      latitude = pos.coords.latitude;
+      longitude = pos.coords.longitude;
+      campo.innerHTML =
+        "Latitude: " + latitude +
+        "<br>Longitude: " + longitude;
+
+      var mapa = document.getElementById("mapa");
+      mapa.src = "https://maps.google.com/maps?q=" + latitude + "," + longitude + "&z=16&output=embed";
+      mapa.style.display = "block";
+    },
+
+    function(err) {
+      if (err.code === 1) {
+        campo.innerHTML = "Permissão negada. Habilite a localização nas configurações do navegador.";
+      } else if (err.code === 2) {
+        campo.innerHTML = "Localização indisponível.";
+      } else {
+        campo.innerHTML = "Tempo esgotado. Tente novamente.";
+      }
+    }
+
+  );
+
+});
+
+document.getElementById("btnEnviar").addEventListener("click", async function() {
+
+  var msg = document.getElementById("msg");
+  msg.innerHTML = "";
+
+  if (latitude == null) {
+    alert("Primeiro capture a localização");
+    return;
+  }
+
+  var responsavel = document.getElementById("responsavel").value;
+  var endereco = document.getElementById("endereco").value;
+  var aluno = document.getElementById("aluno").value;
+  var nascimento = document.getElementById("nascimento").value;
+  var escola = document.getElementById("escola").value;
+  var ano = document.getElementById("ano").value;
+  var rota = document.getElementById("rota").value;
+
+  try {
+
+    var response = await fetch(SUPABASE_URL + "/rest/v1/cadastro_transporte", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": SUPABASE_KEY,
+        "Authorization": "Bearer " + SUPABASE_KEY,
+        "Prefer": "return=minimal"
+      },
+      body: JSON.stringify([{
+        responsavel: responsavel,
+        endereco: endereco,
+        aluno: aluno,
+        nascimento: nascimento,
+        escola: escola,
+        ano: ano,
+        rota: rota,
+        latitude: latitude,
+        longitude: longitude
+      }])
+    });
+
+    if (!response.ok) {
+      var errText = await response.text();
+      alert("Erro ao enviar: " + errText);
+    } else {
+      msg.innerHTML = "Registro enviado com sucesso!";
+      document.getElementById("responsavel").value = "";
+      document.getElementById("endereco").value = "";
+      document.getElementById("aluno").value = "";
+      document.getElementById("nascimento").value = "";
+      document.getElementById("escola").selectedIndex = 0;
+      document.getElementById("ano").selectedIndex = 0;
+      document.getElementById("rota").selectedIndex = 0;
+      latitude = null;
+      longitude = null;
+      document.getElementById("local").innerHTML = "Latitude: - <br>Longitude: -";
+      document.getElementById("mapa").src = "";
+      document.getElementById("mapa").style.display = "none";
+    }
+
+  } catch (e) {
+    alert("Erro de conexão: " + e.message);
+  }
+
+});
+
+</script>
+
+</body>
+
+</html>
