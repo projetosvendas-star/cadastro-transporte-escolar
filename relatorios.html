@@ -280,32 +280,6 @@ h2{font-size:15px;}
 <label>Rota</label>
 <select id="fRota">
 <option value="">Todas</option>
-<option>ROTA BOI BOM/RIO AZUL/PARANÃ - OSVALDO CRUZ - Nelson</option>
-<option>ROTA IRACEMA 03 - OSVALDO CRUZ - Ivanildo</option>
-<option>ROTA GLEBA RIO DO OURO/ GLEBA UNIÃO - OSVALDO CRUZ - Bruno</option>
-<option>ROTA LINHA 01/21/TERRA ROXA - Vanderson</option>
-<option>ROTA FONTANILLAS/URBANO - Rafael</option>
-<option>ROTA CAIABI/05 MENINO JESUS/LISBOA - Rony</option>
-<option>ROTA PESQUISA/URBANO - Adão</option>
-<option>ROTA LINHA 01/04/LISBOA - Ailton</option>
-<option>ROTA LINHA F/04/LISBOA - Florisvaldo</option>
-<option>ROTA LINHA 04/G/EUCLIDES - José Ribeiro</option>
-<option>ROTA LINHA 04/EUCLIDES - Geziel</option>
-<option>ROTA SETOR AEROPORTO/URBANO - Gilmar</option>
-<option>ROTA VALE DO JUINÃƒO/URBANO - Davi</option>
-<option>ROTA LINHA 09/07/LISBOA - França</option>
-<option>ROTA LINHA 08/07/LISBOA - Sebastião</option>
-<option>ROTA GLEBA RIO DO OURO/ GLEBA UNIÃO - OSVALDO CRUZ - Enoc</option>
-<option>ROTA URBANO/PADRE DUÃLIO/PALMITEIRA - Diones</option>
-<option>ROTA BR 170/VAN/URBANO - Alessandro</option>
-<option>ROTA SÃƒO JUSTINO/ IFMT/URBANO - Paulo</option>
-<option>ROTA BR 174/03/TERRA ROXA - Elival</option>
-<option>ROTA RIO PRETO FAZENDA AMALIA/URBANO - Rogerio</option>
-<option>ROTA LINHA J/RIO PRETO/URBANO - Welligton Jumes</option>
-<option>ROTA SHEKINAN / LINHA 01/URBANO - Jussimar Cassol</option>
-<option>ROTA BR ARIPUANÃ / PARANÃ 02 - OSVALDO CRUZ - Ildinei</option>
-<option>ROTA GLEBRA IRACEMA 01 ROTA B - OSVALDO CRUZ - Josimar</option>
-<option>ROTA IRACEMA 02 - OSVALDO CRUZ - Cleiton</option>
 </select>
 </div>
 <div>
@@ -347,6 +321,7 @@ h2{font-size:15px;}
 <div>
 <button class="btn-exportar" onclick="exportarPDF()">PDF</button>
 <button class="btn-exportar" onclick="exportarExcel()">Excel</button>
+<button class="btn-exportar" onclick="abrirGerenciarRotas()" style="background:#8e44ad;">Gerenciar Rotas</button>
 <a class="btn-voltar" href="index.html">Voltar</a>
 </div>
 </div>
@@ -368,6 +343,28 @@ Desenvolvido pelo Departamento de Tecnologia da SME
 var SUPABASE_URL = "https://ndkmuevkdghmssrbewzo.supabase.co";
 var SUPABASE_KEY = "sb_publishable_Oa-hSs2SxH-fWPP089A5-w_QWUeLXAY";
 var dados = [];
+
+var todasRotas = [];
+
+async function carregarSelectRotas() {
+  try {
+    var resp = await fetch(SUPABASE_URL + "/rest/v1/rotas?select=nome,id&order=nome", {
+      headers: { "apikey": SUPABASE_KEY, "Authorization": "Bearer " + SUPABASE_KEY }
+    });
+    todasRotas = await resp.json();
+    var selects = ["fRota"];
+    for (var s = 0; s < selects.length; s++) {
+      var sel = document.getElementById(selects[s]);
+      sel.innerHTML = "<option value=''>Todas</option>";
+      for (var i = 0; i < todasRotas.length; i++) {
+        var opt = document.createElement("option");
+        opt.value = todasRotas[i].nome;
+        opt.textContent = todasRotas[i].nome;
+        sel.appendChild(opt);
+      }
+    }
+  } catch(e) { console.log(e); }
+}
 
 async function carregar(){
   var escola = document.getElementById("fEscola").value;
@@ -480,14 +477,10 @@ function editar(idx){
   var d = dados[idx];
   var escolas = ["E.E ARTUR ANTUNES MACIEL","CEM Dr. GUILHERME","CEM PROFESSOR ORLANDO PEREIRA","EMR OSVALDO CRUZ","EMR EUCLIDES DA CUNHA","EMR VINICIOS DE MORAIS","EE. ANTONIO FRANCISCO LISBOA","ANEXA RIO PRETO","ALVARES DE AZEVEDO","CORA CORALINA","IFMT"];
   var anos = ["PRÉ I","PRÉ II","1º ANO","2º ANO","3º ANO","4º ANO","5º ANO","6º ANO","7º ANO","8º ANO","9º ANO","1º ANO ENSINO MÉDIO","2º ANO ENSINO MÉDIO","3º ANO ENSINO MÉDIO"];
-  var rotas = ["ROTA BOI BOM/RIO AZUL/PARANÃ - OSVALDO CRUZ - Nelson","ROTA IRACEMA 03 - OSVALDO CRUZ - Ivanildo","ROTA GLEBA RIO DO OURO/ GLEBA UNIÃO - OSVALDO CRUZ - Bruno","ROTA LINHA 01/21/TERRA ROXA - Vanderson","ROTA FONTANILLAS/URBANO - Rafael","ROTA CAIABI/05 MENINO JESUS/LISBOA - Rony","ROTA PESQUISA/URBANO - Adão","ROTA LINHA 01/04/LISBOA - Ailton","ROTA LINHA F/04/LISBOA - Florisvaldo","ROTA LINHA 04/G/EUCLIDES - José Ribeiro","ROTA LINHA 04/EUCLIDES - Geziel","ROTA SETOR AEROPORTO/URBANO - Gilmar","ROTA VALE DO JUINÃƒO/URBANO - Davi","ROTA LINHA 09/07/LISBOA - França","ROTA LINHA 08/07/LISBOA - Sebastião","ROTA GLEBA RIO DO OURO/ GLEBA UNIÃO - OSVALDO CRUZ - Enoc","ROTA URBANO/PADRE DUÃLIO/PALMITEIRA - Diones","ROTA BR 170/VAN/URBANO - Alessandro","ROTA SÃƒO JUSTINO/ IFMT/URBANO - Paulo","ROTA BR 174/03/TERRA ROXA - Elival","ROTA RIO PRETO FAZENDA AMALIA/URBANO - Rogerio","ROTA LINHA J/RIO PRETO/URBANO - Welligton Jumes","ROTA SHEKINAN / LINHA 01/URBANO - Jussimar Cassol","ROTA BR ARIPUANÃ / PARANÃ 02 - OSVALDO CRUZ - Ildinei","ROTA GLEBRA IRACEMA 01 ROTA B - OSVALDO CRUZ - Josimar","ROTA IRACEMA 02 - OSVALDO CRUZ - Cleiton"];
-
   var optEscola = "";
   for(var e=0;e<escolas.length;e++) optEscola += "<option" + (d.escola===escolas[e]?" selected":"") + ">" + escolas[e] + "</option>";
   var optAno = "";
   for(var a=0;a<anos.length;a++) optAno += "<option" + (d.ano===anos[a]?" selected":"") + ">" + anos[a] + "</option>";
-  var optRota = "";
-  for(var r=0;r<rotas.length;r++) optRota += "<option" + (d.rota===rotas[r]?" selected":"") + ">" + rotas[r] + "</option>";
 
   var modal = document.createElement("div");
   modal.className = "modal-overlay";
@@ -500,7 +493,7 @@ function editar(idx){
     "<label>Data de Nascimento</label><input type='date' id='eNascimento' value='" + (d.nascimento||"") + "'>" +
     "<label>Escola</label><select id='eEscola'>" + optEscola + "</select>" +
     "<label>Ano Escolar</label><select id='eAno'>" + optAno + "</select>" +
-    "<label>Rota</label><select id='eRota'>" + optRota + "</select>" +
+    "<label>Rota</label><input id='eRota' value='" + (d.rota||"").replace(/'/g,"&#39;") + "'>" +
     "<label>Latitude</label><input id='eLat' value='" + (d.latitude||"") + "'>" +
     "<label>Longitude</label><input id='eLon' value='" + (d.longitude||"") + "'>" +
     "<div style='margin-top:15px;display:flex;gap:10px;'>" +
@@ -612,6 +605,62 @@ function exportarExcel(){
   link.click();
 }
 
+function abrirGerenciarRotas() {
+  var html = "<div class='modal'><h2 style='margin-top:0;font-size:18px;'>Gerenciar Rotas</h2>";
+  html += "<div style='margin-bottom:10px;display:flex;gap:5px;'>";
+  html += "<input id='novaRotaInput' placeholder='Nova rota' style='flex:1;padding:8px;border-radius:6px;border:1px solid #ccc;font-size:13px;'>";
+  html += "<button class='btn-salvar' onclick='adicionarRota()'>Adicionar</button>";
+  html += "</div><div id='listaRotas'>";
+  for (var i = 0; i < todasRotas.length; i++) {
+    html += "<div style='display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #eee;font-size:13px;'>";
+    html += "<span>" + todasRotas[i].nome + "</span>";
+    html += "<button class='btn-excluir' onclick='removerRota(" + todasRotas[i].id + ",\"" + todasRotas[i].nome.replace(/"/g,"&quot;") + "\")' style='padding:3px 8px;font-size:11px;'>Excluir</button>";
+    html += "</div>";
+  }
+  html += "</div>";
+  html += "<div style='margin-top:15px;text-align:right;'><button class='btn-cancelar' onclick='fecharModal()'>Fechar</button></div></div>";
+
+  var overlay = document.createElement("div");
+  overlay.className = "modal-overlay";
+  overlay.id = "modalGerenciarRotas";
+
+  var inner = document.createElement("div");
+  inner.style = "background:white;padding:25px;border-radius:10px;width:90%;max-width:500px;max-height:80vh;overflow-y:auto;";
+  inner.innerHTML = html;
+  overlay.appendChild(inner);
+  document.body.appendChild(overlay);
+}
+
+async function adicionarRota() {
+  var nome = document.getElementById("novaRotaInput").value.trim();
+  if (!nome) { alert("Digite um nome para a rota."); return; }
+  try {
+    var resp = await fetch(SUPABASE_URL + "/rest/v1/rotas", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "apikey": SUPABASE_KEY, "Authorization": "Bearer " + SUPABASE_KEY, "Prefer": "return=minimal" },
+      body: JSON.stringify({ nome: nome })
+    });
+    if (!resp.ok) { var err = await resp.text(); alert("Erro: " + err); return; }
+    fecharModal();
+    await carregarSelectRotas();
+    abrirGerenciarRotas();
+  } catch(e) { alert("Erro de conexão: " + e.message); }
+}
+
+async function removerRota(id, nome) {
+  if (!confirm("Excluir rota \"" + nome + "\"?")) return;
+  try {
+    var resp = await fetch(SUPABASE_URL + "/rest/v1/rotas?id=eq." + id, {
+      method: "DELETE",
+      headers: { "apikey": SUPABASE_KEY, "Authorization": "Bearer " + SUPABASE_KEY }
+    });
+    if (!resp.ok) { var err = await resp.text(); alert("Erro: " + err); return; }
+    fecharModal();
+    await carregarSelectRotas();
+    abrirGerenciarRotas();
+  } catch(e) { alert("Erro de conexão: " + e.message); }
+}
+
 document.getElementById("senhaInput").addEventListener("keypress", function(e) {
   if(e.key === "Enter") document.getElementById("btnLogin").click();
 });
@@ -622,6 +671,7 @@ document.getElementById("btnLogin").addEventListener("click", function() {
     document.getElementById("loginOverlay").style.display = "none";
     document.getElementById("conteudo").style.display = "block";
     carregar();
+    carregarSelectRotas();
   } else {
     document.getElementById("senhaErro").style.display = "block";
     document.getElementById("senhaInput").value = "";

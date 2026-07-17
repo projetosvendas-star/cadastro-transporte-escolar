@@ -207,34 +207,7 @@ button{font-size:14px;padding:10px;}
 <label>Rota</label>
 
 <select id="rota">
-
-<option>ROTA BOI BOM/RIO AZUL/PARANÃ - OSVALDO CRUZ - Nelson</option>
-<option>ROTA IRACEMA 03 - OSVALDO CRUZ - Ivanildo</option>
-<option>ROTA GLEBA RIO DO OURO/ GLEBA UNIÃO - OSVALDO CRUZ - Bruno</option>
-<option>ROTA LINHA 01/21/TERRA ROXA - Vanderson</option>
-<option>ROTA FONTANILLAS/URBANO - Rafael</option>
-<option>ROTA CAIABI/05 MENINO JESUS/LISBOA - Rony</option>
-<option>ROTA PESQUISA/URBANO - Adão</option>
-<option>ROTA LINHA 01/04/LISBOA - Ailton</option>
-<option>ROTA LINHA F/04/LISBOA - Florisvaldo</option>
-<option>ROTA LINHA 04/G/EUCLIDES - José Ribeiro</option>
-<option>ROTA LINHA 04/EUCLIDES - Geziel</option>
-<option>ROTA SETOR AEROPORTO/URBANO - Gilmar</option>
-<option>ROTA VALE DO JUINÃƒO/URBANO - Davi</option>
-<option>ROTA LINHA 09/07/LISBOA - França</option>
-<option>ROTA LINHA 08/07/LISBOA - Sebastião</option>
-<option>ROTA GLEBA RIO DO OURO/ GLEBA UNIÃO - OSVALDO CRUZ - Enoc</option>
-<option>ROTA URBANO/PADRE DUÃLIO/PALMITEIRA - Diones</option>
-<option>ROTA BR 170/VAN/URBANO - Alessandro</option>
-<option>ROTA SÃƒO JUSTINO/ IFMT/URBANO - Paulo</option>
-<option>ROTA BR 174/03/TERRA ROXA - Elival</option>
-<option>ROTA RIO PRETO FAZENDA AMALIA/URBANO - Rogerio</option>
-<option>ROTA LINHA J/RIO PRETO/URBANO - Welligton Jumes</option>
-<option>ROTA SHEKINAN / LINHA 01/URBANO - Jussimar Cassol</option>
-<option>ROTA BR ARIPUANÃ / PARANÃ 02 - OSVALDO CRUZ - Ildinei</option>
-<option>ROTA GLEBRA IRACEMA 01 ROTA B - OSVALDO CRUZ - Josimar</option>
-<option>ROTA IRACEMA 02 - OSVALDO CRUZ - Cleiton</option>
-
+<option value="">Selecione uma rota</option>
 </select>
 
 <button class="btn-gps" id="btnGps">📍 Capturar Localização</button>
@@ -267,6 +240,23 @@ var SUPABASE_KEY = "sb_publishable_Oa-hSs2SxH-fWPP089A5-w_QWUeLXAY";
 
 var latitude = null;
 var longitude = null;
+
+async function carregarRotas() {
+  var select = document.getElementById("rota");
+  try {
+    var resp = await fetch(SUPABASE_URL + "/rest/v1/rotas?select=nome&order=nome", {
+      headers: { "apikey": SUPABASE_KEY, "Authorization": "Bearer " + SUPABASE_KEY }
+    });
+    var rotas = await resp.json();
+    for (var i = 0; i < rotas.length; i++) {
+      var opt = document.createElement("option");
+      opt.textContent = rotas[i].nome;
+      opt.value = rotas[i].nome;
+      select.appendChild(opt);
+    }
+  } catch(e) { console.log(e); }
+}
+carregarRotas();
 
 document.getElementById("btnGps").addEventListener("click", function() {
 
