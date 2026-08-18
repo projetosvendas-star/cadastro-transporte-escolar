@@ -562,6 +562,8 @@ function editar(idx){
 function fecharModal(){
   var m = document.getElementById("modalEditar");
   if(m) m.remove();
+  var g = document.getElementById("modalGerenciarRotas");
+  if(g) g.remove();
 }
 
 async function salvarEdicao(id){
