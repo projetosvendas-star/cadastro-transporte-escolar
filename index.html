@@ -241,20 +241,56 @@ var SUPABASE_KEY = "sb_publishable_Oa-hSs2SxH-fWPP089A5-w_QWUeLXAY";
 var latitude = null;
 var longitude = null;
 
+var ROTAS_PADRAO = [
+  "ROTA BOI BOM/RIO AZUL/PARANÁ - OSVALDO CRUZ - Nelson",
+  "ROTA IRACEMA 03 - OSVALDO CRUZ - Ivanildo",
+  "ROTA GLEBA RIO DO OURO/ GLEBA UNIÃO - OSVALDO CRUZ - Bruno",
+  "ROTA LINHA 01/21/TERRA ROXA - Vanderson",
+  "ROTA FONTANILLAS/URBANO - Rafael",
+  "ROTA CAIABI/05 MENINO JESUS/LISBOA - Rony",
+  "ROTA PESQUISA/URBANO - Adão",
+  "ROTA LINHA 01/04/LISBOA - Ailton",
+  "ROTA LINHA F/04/LISBOA - Florisvaldo",
+  "ROTA LINHA 04/G/EUCLIDES - José Ribeiro",
+  "ROTA LINHA 04/EUCLIDES - Geziel",
+  "ROTA SETOR AEROPORTO/URBANO - Gilmar",
+  "ROTA VALE DO JUINÃƒO/URBANO - Davi",
+  "ROTA LINHA 09/07/LISBOA - França",
+  "ROTA LINHA 08/07/LISBOA - Sebastião",
+  "ROTA GLEBA RIO DO OURO/ GLEBA UNIÃO - OSVALDO CRUZ - Enoc",
+  "ROTA URBANO/PADRE DUÃLIO/PALMITEIRA - Diones",
+  "ROTA BR 170/VAN/URBANO - Alessandro",
+  "ROTA SÃO JUSTINO/ IFMT/URBANO - Paulo",
+  "ROTA BR 174/03/TERRA ROXA - Elival",
+  "ROTA RIO PRETO FAZENDA AMALIA/URBANO - Rogerio",
+  "ROTA LINHA J/RIO PRETO/URBANO - Welligton Jumes",
+  "ROTA SHEKINAN / LINHA 01/URBANO - Jussimar Cassol",
+  "ROTA BR ARIPUANÃ / PARANÁ 02 - OSVALDO CRUZ - Ildinei",
+  "ROTA GLEBRA IRACEMA 01 ROTA B - OSVALDO CRUZ - Josimar",
+  "ROTA IRACEMA 02 - OSVALDO CRUZ - Cleiton"
+];
+
+function preencherRotas(select, nomes) {
+  for (var i = 0; i < nomes.length; i++) {
+    var opt = document.createElement("option");
+    opt.textContent = nomes[i];
+    opt.value = nomes[i];
+    select.appendChild(opt);
+  }
+}
+
 async function carregarRotas() {
   var select = document.getElementById("rota");
   try {
     var resp = await fetch(SUPABASE_URL + "/rest/v1/rotas?select=nome&order=nome", {
       headers: { "apikey": SUPABASE_KEY, "Authorization": "Bearer " + SUPABASE_KEY }
     });
-    var rotas = await resp.json();
-    for (var i = 0; i < rotas.length; i++) {
-      var opt = document.createElement("option");
-      opt.textContent = rotas[i].nome;
-      opt.value = rotas[i].nome;
-      select.appendChild(opt);
+    if (resp.ok) {
+      var rotas = await resp.json();
+      if (rotas && rotas.length) { preencherRotas(select, rotas.map(function(r){ return r.nome; })); return; }
     }
-  } catch(e) { console.log(e); }
+    preencherRotas(select, ROTAS_PADRAO);
+  } catch(e) { preencherRotas(select, ROTAS_PADRAO); }
 }
 carregarRotas();
 

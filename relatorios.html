@@ -346,24 +346,70 @@ var dados = [];
 
 var todasRotas = [];
 
+var ROTAS_PADRAO = [
+  "ROTA BOI BOM/RIO AZUL/PARANÁ - OSVALDO CRUZ - Nelson",
+  "ROTA IRACEMA 03 - OSVALDO CRUZ - Ivanildo",
+  "ROTA GLEBA RIO DO OURO/ GLEBA UNIÃO - OSVALDO CRUZ - Bruno",
+  "ROTA LINHA 01/21/TERRA ROXA - Vanderson",
+  "ROTA FONTANILLAS/URBANO - Rafael",
+  "ROTA CAIABI/05 MENINO JESUS/LISBOA - Rony",
+  "ROTA PESQUISA/URBANO - Adão",
+  "ROTA LINHA 01/04/LISBOA - Ailton",
+  "ROTA LINHA F/04/LISBOA - Florisvaldo",
+  "ROTA LINHA 04/G/EUCLIDES - José Ribeiro",
+  "ROTA LINHA 04/EUCLIDES - Geziel",
+  "ROTA SETOR AEROPORTO/URBANO - Gilmar",
+  "ROTA VALE DO JUINÃƒO/URBANO - Davi",
+  "ROTA LINHA 09/07/LISBOA - França",
+  "ROTA LINHA 08/07/LISBOA - Sebastião",
+  "ROTA GLEBA RIO DO OURO/ GLEBA UNIÃO - OSVALDO CRUZ - Enoc",
+  "ROTA URBANO/PADRE DUÃLIO/PALMITEIRA - Diones",
+  "ROTA BR 170/VAN/URBANO - Alessandro",
+  "ROTA SÃO JUSTINO/ IFMT/URBANO - Paulo",
+  "ROTA BR 174/03/TERRA ROXA - Elival",
+  "ROTA RIO PRETO FAZENDA AMALIA/URBANO - Rogerio",
+  "ROTA LINHA J/RIO PRETO/URBANO - Welligton Jumes",
+  "ROTA SHEKINAN / LINHA 01/URBANO - Jussimar Cassol",
+  "ROTA BR ARIPUANÃ / PARANÁ 02 - OSVALDO CRUZ - Ildinei",
+  "ROTA GLEBRA IRACEMA 01 ROTA B - OSVALDO CRUZ - Josimar",
+  "ROTA IRACEMA 02 - OSVALDO CRUZ - Cleiton"
+];
+
+function preencherSelectRotas(sel, nomes) {
+  for (var i = 0; i < nomes.length; i++) {
+    var opt = document.createElement("option");
+    opt.value = nomes[i];
+    opt.textContent = nomes[i];
+    sel.appendChild(opt);
+  }
+}
+
 async function carregarSelectRotas() {
   try {
     var resp = await fetch(SUPABASE_URL + "/rest/v1/rotas?select=nome,id&order=nome", {
       headers: { "apikey": SUPABASE_KEY, "Authorization": "Bearer " + SUPABASE_KEY }
     });
-    todasRotas = await resp.json();
-    var selects = ["fRota"];
-    for (var s = 0; s < selects.length; s++) {
-      var sel = document.getElementById(selects[s]);
-      sel.innerHTML = "<option value=''>Todas</option>";
-      for (var i = 0; i < todasRotas.length; i++) {
-        var opt = document.createElement("option");
-        opt.value = todasRotas[i].nome;
-        opt.textContent = todasRotas[i].nome;
-        sel.appendChild(opt);
-      }
+    if (resp.ok) {
+      todasRotas = await resp.json();
+    } else {
+      todasRotas = [];
     }
-  } catch(e) { console.log(e); }
+    if (!todasRotas || !todasRotas.length) {
+      todasRotas = ROTAS_PADRAO.map(function(nome, i){ return { id: i, nome: nome }; });
+    }
+    var sel = document.getElementById("fRota");
+    sel.innerHTML = "<option value=''>Todas</option>";
+    preencherSelectRotas(sel, todasRotas.map(function(r){ return r.nome; }));
+  } catch(e) {
+    todasRotas = ROTAS_PADRAO.map(function(nome, i){ return { id: i, nome: nome }; });
+    var sel2 = document.getElementById("fRota");
+    sel2.innerHTML = "<option value=''>Todas</option>";
+    preencherSelectRotas(sel2, todasRotas.map(function(r){ return r.nome; }));
+  }
+}
+
+function exibirErro(msg){
+  document.getElementById("tabela").innerHTML = "<p class='loading'>" + msg + "</p>";
 }
 
 async function carregar(){
@@ -389,10 +435,20 @@ async function carregar(){
         "Authorization": "Bearer " + SUPABASE_KEY
       }
     });
+    if(!response.ok){
+      var msg = "Erro " + response.status + " ao carregar dados.";
+      try {
+        var err = await response.json();
+        if(err && err.message) msg += "<br>" + err.message;
+        if(err && err.hint) msg += "<br><em>" + err.hint + "</em>";
+      } catch(er) {}
+      exibirErro(msg);
+      return;
+    }
     dados = await response.json();
     renderizar();
   }catch(e){
-    document.getElementById("tabela").innerHTML = "<p class='loading'>Erro ao carregar dados.</p>";
+    exibirErro("Erro ao carregar dados.<br><em>" + e.message + "</em>");
   }
 }
 
