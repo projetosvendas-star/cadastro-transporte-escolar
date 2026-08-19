@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Monitoramento - Supabase</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+font-family:Arial,sans-serif;
+background:#eef3ff;
+min-height:100vh;
+display:flex;
+justify-content:center;
+align-items:flex-start;
+}
+
+.container{
+max-width:820px;
+width:100%;
+background:white;
+margin:20px;
+padding:25px;
+border-radius:10px;
+box-shadow:0 5px 20px rgba(0,0,0,0.2);
+}
+
+h1{
+text-align:center;
+font-size:22px;
+color:#2c3e50;
+margin-bottom:4px;
+}
+
+.sub{
+text-align:center;
+font-size:13px;
+color:#666;
+margin-bottom:20px;
+}
+
+.status-geral{
+display:flex;
+align-items:center;
+justify-content:center;
+gap:10px;
+padding:16px;
+border-radius:8px;
+font-size:18px;
+font-weight:bold;
+margin-bottom:20px;
+color:#fff;
+}
+
+.status-geral.online{background:#27ae60;}
+.status-geral.offline{background:#e74c3c;}
+.status-geral.atencao{background:#f39c12;}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+gap:12px;
+margin-bottom:20px;
+}
+
+.card{
+background:#f8fafd;
+border:1px solid #e2e8f0;
+border-radius:8px;
+padding:14px;
+}
+
+.card .rotulo{
+font-size:11px;
+font-weight:bold;
+text-transform:uppercase;
+color:#7f8c9b;
+margin-bottom:6px;
+letter-spacing:.4px;
+}
+
+.card .valor{
+font-size:16px;
+font-weight:bold;
+color:#2c3e50;
+word-break:break-word;
+}
+
+.card .valor.small{font-size:13px;font-weight:normal;color:#555;}
+
+.erro-box{
+background:#fdf0ef;
+border:1px solid #f5c6c2;
+color:#b33a2e;
+border-radius:8px;
+padding:12px;
+font-size:13px;
+margin-bottom:20px;
+word-break:break-word;
+}
+
+.rodape{
+text-align:center;
+font-size:11px;
+color:#555;
+border-top:1px solid #e2e8f0;
+padding-top:12px;
+margin-top:20px;
+}
+
+.rodape a{color:#2980b9;font-weight:bold;text-decoration:none;}
+
+.atualizacao{
+text-align:center;
+font-size:12px;
+color:#888;
+margin-top:12px;
+}
+
+@media (max-width:480px){
+.container{margin:10px;padding:15px;border-radius:8px;}
+h1{font-size:18px;}
+.status-geral{font-size:15px;padding:12px;}
+.card .valor{font-size:14px;}
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Monitoramento do Sistema</h1>
+<p class="sub">Supabase · Anti-pausa · Vercel Cron</p>
+
+<div class="status-geral" id="statusGeral">Carregando...</div>
+
+<div class="grid">
+<div class="card">
+<div class="rotulo">Serviço</div>
+<div class="valor" id="cServico">-</div>
+</div>
+<div class="card">
+<div class="rotulo">Último ping</div>
+<div class="valor" id="cUltimoPing">-</div>
+</div>
+<div class="card">
+<div class="rotulo">Tempo de resposta</div>
+<div class="valor" id="cResposta">-</div>
+</div>
+<div class="card">
+<div class="rotulo">Execuções</div>
+<div class="valor" id="cExecucoes">-</div>
+</div>
+<div class="card">
+<div class="rotulo">Último status registrado</div>
+<div class="valor" id="cUltimoStatus">-</div>
+</div>
+<div class="card">
+<div class="rotulo">Verificado às</div>
+<div class="valor" id="cVerificado">-</div>
+</div>
+</div>
+
+<div class="erro-box" id="erroBox" style="display:none;">
+<strong>Último erro:</strong> <span id="erroTexto"></span>
+</div>
+
+<div class="atualizacao" id="atualizacao">Atualizando automaticamente a cada 60s...</div>
+
+<div class="rodape">
+Desenvolvido pelo Departamento de Tecnologia da SME ·
+<a href="index.html">Formulário</a> ·
+<a href="relatorios.html">Relatórios</a>
+</div>
+
+</div>
+
+<script>
+
+var INTERVALO_MS = 60000;
+
+function fmtData(iso){
+  if(!iso) return "-";
+  var d = new Date(iso);
+  return d.toLocaleString("pt-BR");
+}
+
+function statusParaClasse(d){
+  if(!d || d.status === "offline") return { classe:"offline", texto:"🔴 Offline" };
+  if(d.executions === 0) return { classe:"atencao", texto:"🟡 Atenção · sem registros ainda" };
+  if(d.last_status === "error") return { classe:"atencao", texto:"🟡 Atenção · último ping falhou" };
+  if(d.last_response_time_ms !== null && d.last_response_time_ms > 2000) return { classe:"atencao", texto:"🟡 Atenção · resposta lenta" };
+  return { classe:"online", texto:"🟢 Online" };
+}
+
+async function verificar(){
+  var geral = document.getElementById("statusGeral");
+  var erroBox = document.getElementById("erroBox");
+
+  try{
+    var resp = await fetch("/api/health", { headers: { "Accept": "application/json" } });
+    var d = await resp.json();
+
+    var s = statusParaClasse(d);
+
+    geral.className = "status-geral " + s.classe;
+    geral.textContent = s.texto;
+
+    document.getElementById("cServico").textContent = d.service || "supabase";
+    document.getElementById("cUltimoPing").textContent = fmtData(d.last_ping);
+    document.getElementById("cResposta").textContent =
+      (d.response_time_ms != null ? d.response_time_ms + " ms" : "-") +
+      (d.last_response_time_ms != null ? " (último: " + d.last_response_time_ms + " ms)" : "");
+    document.getElementById("cExecucoes").textContent =
+      d.executions != null ? d.executions + " execução(ões)" : "-";
+    document.getElementById("cUltimoStatus").textContent = d.last_status || "-";
+    document.getElementById("cVerificado").textContent = fmtData(d.checked_at);
+
+    if(d.last_error){
+      erroBox.style.display = "block";
+      document.getElementById("erroTexto").textContent = d.last_error;
+    } else {
+      erroBox.style.display = "none";
+    }
+  }catch(e){
+    geral.className = "status-geral offline";
+    geral.textContent = "🔴 Offline";
+    erroBox.style.display = "block";
+    document.getElementById("erroTexto").textContent = "Não foi possível consultar /api/health: " + e.message;
+  }
+}
+
+verificar();
+setInterval(verificar, INTERVALO_MS);
+
+</script>
+
+</body>
+
+</html>

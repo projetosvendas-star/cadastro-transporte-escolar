@@ -1,0 +1,18 @@
+{
+  "name": "formulario-transporte-escolar",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Formulário de transporte escolar + sistema anti-pausa (Vercel Cron -> /api/keep-alive -> Supabase)",
+  "scripts": {
+    "build": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test test/health.test.ts test/keep-alive.test.ts",
+    "lint": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.5.0"
+  }
+}
