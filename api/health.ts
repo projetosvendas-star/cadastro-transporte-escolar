@@ -1,5 +1,5 @@
-import { sendJson, type Req, type Res } from '../lib/http';
-import { getHealthStats, isConfigured, pingSupabase } from '../lib/supabase';
+import { sendJson, type Req, type Res } from '../lib/http.js';
+import { getHealthStats, isConfigured, pingSupabase } from '../lib/supabase.js';
 
 export default async function handler(req: Req, res: Res): Promise<void> {
   if (req.method !== 'GET') {

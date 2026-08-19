@@ -1,9 +1,9 @@
-import { sendJson, type Req, type Res } from '../lib/http';
+import { sendJson, type Req, type Res } from '../lib/http.js';
 import {
   cleanupHealthRecords,
   insertHealthRecord,
   isConfigured,
-} from '../lib/supabase';
+} from '../lib/supabase.js';
 
 function resolveSecret(): string | undefined {
   return process.env.KEEP_ALIVE_SECRET ?? process.env.CRON_SECRET ?? undefined;
